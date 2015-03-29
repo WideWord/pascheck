@@ -57,18 +57,24 @@ token_t get_token(FILE *stream) {
 			return nc;
 
         /* обработка begin/end */
-		if ((nc >= 'A' && nc <= 'z') || nc == '_' || (nc >= '0' && nc <= '9')) {
-			if (ctr < 15) {
-				buf[ctr++] = tolower(nc);
-				buf[ctr] = 0;
-				if (strcmp(buf, "begin") == 0)
-					return TOK_BEGIN;
-				if (strcmp(buf, "end") == 0)
-					return TOK_END;
-			}
-		} else {
-			ctr = 0;
-		}
+        if ((nc >= 'A' && nc <= 'z') || nc == '_' || (nc >= '0' && nc <= '9')) {
+            while (((nc >= 'A' && nc <= 'z') || nc == '_' || (nc >= '0' && nc <= '9')) && ctr < 15) {
+                buf[ctr++] = tolower(nc);
+                nc = fgetc(stream);
+            }
+            token_t res = 0;
+            if ((nc >= 'A' && nc <= 'z') || nc == '_' || (nc >= '0' && nc <= '9')) {
+                while ((nc >= 'A' && nc <= 'z') || nc == '_' || (nc >= '0' && nc <= '9'))
+                    nc = fgetc(stream);
+            } else {
+                buf[ctr] = 0;
+                if (strcmp(buf, "begin") == 0) res = TOK_BEGIN;
+                else if (strcmp(buf, "end") == 0) res = TOK_END;
+            }
+            ungetc(nc, stream);
+            if (res == 0) continue;
+            else return res;
+        }
 
 	}
 
