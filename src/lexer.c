@@ -5,9 +5,6 @@
 
 token_t get_token(FILE *stream) {
 
-	int ctr = 0;
-	char buf[16];
-
 	while (1) {
 
         /* получим следующий символ из стека */
@@ -24,14 +21,25 @@ token_t get_token(FILE *stream) {
 				if (nc == EOF)
 					return TOK_ERR;
 				if (nc == '\'') break;
-				else if (nc == '\\') {
-					nc = fgetc(stream);
-					if (nc == EOF)
-						return TOK_ERR;
-				}
-			}
+            }
 			continue;
 		}
+        
+        /* обработка строк */
+        if (nc == '\"') {
+            while (1) {
+                nc = fgetc(stream);
+                if (nc == EOF)
+                    return TOK_ERR;
+                if (nc == '\"') break;
+                else if (nc == '\\') {
+                    nc = fgetc(stream);
+                    if (nc == EOF)
+                        return TOK_ERR;
+                }
+            }
+            continue;
+        }
 
         /* обработка комментариев */
 		if (nc == '}')
@@ -58,6 +66,8 @@ token_t get_token(FILE *stream) {
 
         /* обработка begin/end */
         if ((nc >= 'A' && nc <= 'z') || nc == '_' || (nc >= '0' && nc <= '9')) {
+            char buf[16];
+            int ctr = 0;
             while (((nc >= 'A' && nc <= 'z') || nc == '_' || (nc >= '0' && nc <= '9')) && ctr < 15) {
                 buf[ctr++] = tolower(nc);
                 nc = fgetc(stream);

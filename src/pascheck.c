@@ -4,7 +4,7 @@
 #include "int_stack.h"
 
 void failed() {
-	printf("no\n");
+	printf("incorrect");
 	exit(0);
 }
 
@@ -51,7 +51,7 @@ int main () {
 		failed();
 	}
 
-	printf("yes\n");
+	printf("correct");
 
 	return 0;
 }
